@@ -14,9 +14,9 @@
     h1 { margin: 0; color: #287a49; font-size: clamp(27px, 7vw, 40px); line-height: 1.15; }
     .hint { margin: 9px 0 0; color: #53665b; font-size: clamp(16px, 4vw, 19px); }
     .toolbar { display: flex; justify-content: center; gap: 12px; margin: 14px 0 12px; flex-wrap: wrap; }
-    .mode-button { min-height: 48px; border: 0; border-radius: 999px; padding: 11px 20px; background: #287a49; color: #fff; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 #1d5d39; -webkit-tap-highlight-color: transparent; }
+    .mode-button { min-height: 48px; border: 0; border-radius: 999px; padding: 11px 20px; background: #287a49; color: #fff; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #1d5d39; -webkit-tap-highlight-color: transparent; }
     .mode-button.secondary { background: #ffb703; color: #342900; box-shadow: 0 4px 0 #d89200; }
-    .mode-button:active { transform: translateY(2px); box-shadow: 0 2px 0 #1c5e37; }
+    .mode-button:active { transform: translateY(2px); }
     #game-prompt { min-height: 36px; margin: 8px 0 12px; text-align: center; color: #295b35; font-size: clamp(19px, 5vw, 26px); font-weight: 800; }
     #grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .animal { min-height: clamp(132px, 27vw, 174px); padding: 12px 6px; border: 0; border-radius: 23px; background: #fff; box-shadow: 0 5px 0 #dce8d5, 0 8px 18px #3b553018; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform .08s ease, filter .2s ease; -webkit-tap-highlight-color: transparent; }
@@ -68,7 +68,7 @@
       { name: 'Eshak', emoji: '🫏', file: 'donkey-bray-36757.mp3', alternatives: ['mixkit-donkey-crying-310.mp3'] },
       { name: 'Fil', emoji: '🐘', file: 'elephant-trumpets-growls-6047.mp3', alternatives: ['mixkit-elephant-trumpet-1677.mp3'] },
       { name: 'Bo‘ri', emoji: '🐺', sound: 'https://archive.org/download/animalsounds1/Wolf%20pack%20howls.mp3' },
-      { name: 'Ayiq', emoji: '🐻', sound: 'https://sounddino.com/static/audio/nature/animals/the_roar_of_a_bear_is_very_close.mp3', alternatives: ['https://cdn.pixabay.com/audio/2023/01/16/audio_125b16a3b6.mp3'] },
+      { name: 'Ayiq', emoji: '🐻', sound: 'https://cdn.pixabay.com/audio/2023/01/16/audio_125b16a3b6.mp3', alternatives: ['https://sounddino.com/static/audio/nature/animals/the_roar_of_a_bear_is_very_close.mp3'] },
       { name: 'Maymun', emoji: '🐵', sound: 'https://sounddino.com/static/audio/nature/animals/wild_monkey_laugh.mp3', alternatives: ['https://sounddino.com/static/audio/nature/animals/monkey_makes_sounds.mp3', 'https://archive.org/download/MonkeySounds/SQMonkey.mp3'] },
       { name: 'Tuya', emoji: '🐪', sound: 'https://archive.org/download/SoundIdeasAnimalsBirds/SoundIdeasAnimalsBirds-028-CamelCallGruntsMatingCall.mp3' }
     ].map(animal => ({
