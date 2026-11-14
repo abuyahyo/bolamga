@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#fff8df">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
   <title>Hayvonlar ovozi 🐾</title>
   <style>
     :root { color-scheme: light; font-family: "Trebuchet MS", system-ui, sans-serif; background: #fff8df; color: #263238; }
@@ -11,6 +12,8 @@
     body { min-height: 100vh; margin: 0; background: radial-gradient(ellipse at top, #e1f7d5 0, #fff8df 55%, #ffefd2 100%); }
     main { width: min(100%, 960px); margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); }
     header { text-align: center; padding: 8px 0 16px; }
+    .title-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    .app-logo { width: clamp(38px, 8vw, 52px); height: auto; border-radius: 18px; box-shadow: 0 6px 18px rgba(9, 76, 42, 0.18); }
     h1 { margin: 0; color: #287a49; font-size: clamp(27px, 7vw, 40px); line-height: 1.15; }
     .hint { margin: 9px 0 0; color: #53665b; font-size: clamp(16px, 4vw, 19px); }
     .toolbar { display: flex; justify-content: center; gap: 12px; margin: 14px 0 12px; flex-wrap: wrap; }
@@ -37,7 +40,10 @@
 <body>
   <main>
     <header>
-      <h1>🐾 Hayvonlar ovozi</h1>
+      <div class="title-row">
+        <img class="app-logo" src="assets/logo.svg" alt="Hayvonlar ovozi logo">
+        <h1>🐾 Hayvonlar ovozi</h1>
+      </div>
       <p class="hint">Hayvon rasmini bosing — ovozini eshiting!</p>
       <div class="toolbar">
         <button id="game-toggle" class="mode-button" type="button">🎮 Hayvonni top</button>
@@ -53,7 +59,7 @@
     const ARCHIVE = 'https://archive.org/download/various-animal-sounds/';
     const ANIMALS = [
       { name: 'Mushuk', emoji: '🐱', file: 'cat-miaw-38311.mp3', alternatives: ['cat-purr-6164.mp3'] },
-      { name: 'It', emoji: '🐶', file: 'dog-bark-31470.mp3', alternatives: ['dog-29387.mp3', 'barking-3-47779.mp3'] },
+      { name: 'It', emoji: '���', file: 'dog-bark-31470.mp3', alternatives: ['dog-29387.mp3', 'barking-3-47779.mp3'] },
       { name: 'Sigir', emoji: '🐮', file: 'mixkit-cow-moo-1744.mp3', alternatives: ['078921 cow-38460.mp3', 'mixkit-cow-single-moo-1747.mp3'] },
       { name: 'Qo‘y', emoji: '🐑', file: 'mixkit-sheep-sounds-1741.mp3', alternatives: ['flock-of-sheep-in-park-english-garden-in-munich-19201.mp3'] },
       { name: 'O‘rdak', emoji: '🦆', file: 'mallard-and-mandarin-ducks-with-take-off-24017.mp3' },
