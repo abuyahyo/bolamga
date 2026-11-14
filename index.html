@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff8df">
+  <title>Hayvonlar ovozi 🐾</title>
+  <style>
+    :root { color-scheme: light; font-family: "Trebuchet MS", system-ui, sans-serif; background: #fff8df; color: #263238; }
+    * { box-sizing: border-box; touch-action: manipulation; }
+    body { min-height: 100vh; margin: 0; background: radial-gradient(ellipse at top, #e1f7d5 0, #fff8df 55%, #ffefd2 100%); }
+    main { width: min(100%, 960px); margin: 0 auto; padding: max(18px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom)); }
+    header { text-align: center; padding: 8px 0 16px; }
+    h1 { margin: 0; color: #287a49; font-size: clamp(27px, 7vw, 40px); line-height: 1.15; }
+    .hint { margin: 9px 0 0; color: #53665b; font-size: clamp(16px, 4vw, 19px); }
+    .toolbar { display: flex; justify-content: center; gap: 12px; margin: 14px 0 12px; flex-wrap: wrap; }
+    .mode-button { min-height: 48px; border: 0; border-radius: 999px; padding: 11px 20px; background: #287a49; color: #fff; font: inherit; font-size: 17px; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 #1d5d39; -webkit-tap-highlight-color: transparent; }
+    .mode-button.secondary { background: #ffb703; color: #342900; box-shadow: 0 4px 0 #d89200; }
+    .mode-button:active { transform: translateY(2px); box-shadow: 0 2px 0 #1c5e37; }
+    #game-prompt { min-height: 36px; margin: 8px 0 12px; text-align: center; color: #295b35; font-size: clamp(19px, 5vw, 26px); font-weight: 800; }
+    #grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .animal { min-height: clamp(132px, 27vw, 174px); padding: 12px 6px; border: 0; border-radius: 23px; background: #fff; box-shadow: 0 5px 0 #dce8d5, 0 8px 18px #3b553018; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: transform .08s ease, filter .2s ease; -webkit-tap-highlight-color: transparent; }
+    .animal:active, .animal.playing { transform: scale(.96); background: #fff1a8; box-shadow: 0 2px 0 #dfcf86; }
+    .animal:focus-visible, .mode-button:focus-visible { outline: 4px solid #287a49; outline-offset: 3px; }
+    .animal:focus:not(:focus-visible), .mode-button:focus:not(:focus-visible) { outline: none; }
+    .animal.correct { background: #d7f6d8; box-shadow: 0 5px 0 #a6d9a8; }
+    .animal.wrong { background: #ffe0dc; box-shadow: 0 5px 0 #e9b5ae; }
+    .picture { font-size: clamp(58px, 15vw, 88px); line-height: 1.05; }
+    .name { font-size: clamp(18px, 4.5vw, 23px); font-weight: 800; }
+    .status-note { margin: 12px 0 0; color: #8a3c22; text-align: center; font-weight: 700; }
+    footer { padding: 20px 4px 4px; text-align: center; color: #66776a; font-size: 15px; line-height: 1.5; }
+    @media (min-width: 560px) { #grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 15px; } }
+    @media (min-width: 800px) { #grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>🐾 Hayvonlar ovozi</h1>
+      <p class="hint">Hayvon rasmini bosing — ovozini eshiting!</p>
+      <div class="toolbar">
+        <button id="game-toggle" class="mode-button" type="button">🎮 Hayvonni top</button>
+        <button id="repeat-sound" class="mode-button secondary" type="button" hidden>🔊 Yana eshit</button>
+      </div>
+    </header>
+    <p id="game-prompt" aria-live="polite"></p>
+    <section id="grid" aria-label="Hayvonlar"></section>
+    <p id="status" class="status-note" role="status" hidden></p>
+    <footer>19 ta hayvon ovozi. Eshitish uchun internet kerak 🔊</footer>
+  </main>
+  <script>
+    const ARCHIVE = 'https://archive.org/download/various-animal-sounds/';
+    const ANIMALS = [
+      { name: 'Mushuk', emoji: '🐱', file: 'cat-miaw-38311.mp3', alternatives: ['cat-purr-6164.mp3'] },
+      { name: 'It', emoji: '🐶', file: 'dog-bark-31470.mp3', alternatives: ['dog-29387.mp3', 'barking-3-47779.mp3'] },
+      { name: 'Sigir', emoji: '🐮', file: 'mixkit-cow-moo-1744.mp3', alternatives: ['078921 cow-38460.mp3', 'mixkit-cow-single-moo-1747.mp3'] },
+      { name: 'Qo‘y', emoji: '🐑', file: 'mixkit-sheep-sounds-1741.mp3', alternatives: ['flock-of-sheep-in-park-english-garden-in-munich-19201.mp3'] },
+      { name: 'O‘rdak', emoji: '🦆', file: 'mallard-and-mandarin-ducks-with-take-off-24017.mp3' },
+      { name: 'Tovuq', emoji: '🐔', file: 'chicken-single-alarm-call-6056.mp3', alternatives: ['mixkit-chicken-hens-clucking-1768.mp3'] },
+      { name: 'Ot', emoji: '🐴', file: 'mixkit-stallion-horse-neigh-1762.mp3', alternatives: ['horse whinnying 1-30890.mp3'] },
+      { name: 'Cho‘chqa', emoji: '🐷', file: 'mixkit-big-pig-grunt-320.mp3', alternatives: ['pig-sound-43195.mp3', '087934 pigs-44503.mp3'] },
+      { name: 'Sher', emoji: '🦁', file: 'lion-roar-6011.mp3', alternatives: ['mixkit-wild-lion-animal-roar-6.mp3'] },
+      { name: 'Qurbaqa', emoji: '🐸', file: 'frog-croaks-22312.mp3', alternatives: ['frogs-23022.mp3'] },
+      { name: 'Qush', emoji: '🐦', file: 'mixkit-melodic-songbird-chirp-67.mp3' },
+      { name: 'Echki', emoji: '🐐', file: 'mixkit-farm-goat-baa-1763.mp3', alternatives: ['mixkit-goat-single-baa-1760.mp3'] },
+      { name: 'Xo‘roz', emoji: '🐓', file: 'mixkit-rooster-crowing-in-the-morning-2462.mp3' },
+      { name: 'Eshak', emoji: '🫏', file: 'donkey-bray-36757.mp3', alternatives: ['mixkit-donkey-crying-310.mp3'] },
+      { name: 'Fil', emoji: '🐘', file: 'elephant-trumpets-growls-6047.mp3', alternatives: ['mixkit-elephant-trumpet-1677.mp3'] },
+      { name: 'Bo‘ri', emoji: '🐺', sound: 'https://archive.org/download/animalsounds1/Wolf%20pack%20howls.mp3' },
+      { name: 'Ayiq', emoji: '🐻', sound: 'https://sounddino.com/static/audio/nature/animals/the_roar_of_a_bear_is_very_close.mp3', alternatives: ['https://cdn.pixabay.com/audio/2023/01/16/audio_125b16a3b6.mp3'] },
+      { name: 'Maymun', emoji: '🐵', sound: 'https://sounddino.com/static/audio/nature/animals/wild_monkey_laugh.mp3', alternatives: ['https://sounddino.com/static/audio/nature/animals/monkey_makes_sounds.mp3', 'https://archive.org/download/MonkeySounds/SQMonkey.mp3'] },
+      { name: 'Tuya', emoji: '🐪', sound: 'https://archive.org/download/SoundIdeasAnimalsBirds/SoundIdeasAnimalsBirds-028-CamelCallGruntsMatingCall.mp3' }
+    ].map(animal => ({
+      ...animal,
+      sources: [
+        animal.sound || ARCHIVE + encodeURIComponent(animal.file),
+        ...(animal.alternatives || []).map(source => source.startsWith('http') ? source : ARCHIVE + encodeURIComponent(source))
+      ]
+    }));
+
+    const grid = document.getElementById('grid');
+    const status = document.getElementById('status');
+    const prompt = document.getElementById('game-prompt');
+    const gameToggle = document.getElementById('game-toggle');
+    const repeatButton = document.getElementById('repeat-sound');
+    const audioCache = new Map();
+    let gameMode = false;
+    let currentRound = null;
+    let currentAudio = null;
+    let currentButton = null;
+    let advanceTimer = null;
+    let playbackToken = 0;
+
+    function getAudio(source) {
+      let audio = audioCache.get(source);
+      if (!audio) {
+        audio = new Audio();
+        audio.preload = 'auto';
+        audio.src = source;
+        audio.load();
+        audioCache.set(source, audio);
+      }
+      return audio;
+    }
+
+    function preloadAnimal(animal) {
+      getAudio(animal.sources[0]);
+    }
+
+    const soundObserver = 'IntersectionObserver' in window
+      ? new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            preloadAnimal(entry.target.animalData);
+            soundObserver.unobserve(entry.target);
+          });
+        }, { rootMargin: '300px 0px' })
+      : null;
+
+    function prepareButton(button, animal) {
+      button.animalData = animal;
+      if (soundObserver) soundObserver.observe(button);
+      else preloadAnimal(animal);
+      button.addEventListener('pointerenter', () => preloadAnimal(animal), { once: true });
+      button.addEventListener('focus', () => preloadAnimal(animal), { once: true });
+    }
+
+    function stopAudio() {
+      playbackToken++;
+      if (currentAudio) {
+        currentAudio.pause();
+        try { currentAudio.currentTime = 0; } catch (_) {}
+        currentAudio = null;
+      }
+      if (currentButton) currentButton.classList.remove('playing');
+      currentButton = null;
+    }
+
+    function playSource(animal, button, sourceIndex, token) {
+      if (token !== playbackToken) return;
+      const audio = getAudio(animal.sources[sourceIndex]);
+      try { audio.currentTime = 0; } catch (_) {}
+      currentAudio = audio;
+      currentButton = button;
+      if (button) button.classList.add('playing');
+      let handled = false;
+      const onFailure = () => {
+        if (handled || token !== playbackToken) return;
+        handled = true;
+        if (button) button.classList.remove('playing');
+        if (currentAudio === audio) { currentAudio = null; currentButton = null; }
+        if (sourceIndex + 1 < animal.sources.length) {
+          playSource(animal, button, sourceIndex + 1, token);
+        } else {
+          status.textContent = `“${animal.name}” ovozi hozir yuklanmadi. Internetni tekshirib, keyinroq urinib ko‘ring.`;
+          status.hidden = false;
+        }
+      };
+      audio.addEventListener('ended', () => {
+        if (button) button.classList.remove('playing');
+        if (currentAudio === audio) { currentAudio = null; currentButton = null; }
+      }, { once: true });
+      audio.addEventListener('error', onFailure, { once: true });
+      audio.play().catch(onFailure);
+    }
+
+    function playAnimal(animal, button = null) {
+      stopAudio();
+      status.hidden = true;
+      status.textContent = '';
+      playSource(animal, button, 0, playbackToken);
+    }
+
+    function renderList() {
+      grid.replaceChildren();
+      ANIMALS.forEach(animal => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'animal';
+        button.setAttribute('aria-label', animal.name + ' ovozini eshitish');
+        button.innerHTML = `<span class="picture" aria-hidden="true">${animal.emoji}</span><span class="name">${animal.name}</span>`;
+        prepareButton(button, animal);
+        button.addEventListener('click', () => playAnimal(animal, button));
+        grid.appendChild(button);
+      });
+    }
+
+    function shuffle(items) {
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+      return items;
+    }
+
+    function startRound() {
+      clearTimeout(advanceTimer);
+      stopAudio();
+      const correct = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+      const choices = shuffle([correct, ...shuffle(ANIMALS.filter(a => a !== correct)).slice(0, 3)]);
+      currentRound = { correct, answered: false };
+      prompt.textContent = 'Qaysi hayvonning ovozi?';
+      grid.replaceChildren();
+      choices.forEach(animal => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'animal';
+        button.setAttribute('aria-label', 'Hayvonni tanlang');
+        button.innerHTML = `<span class="picture" aria-hidden="true">${animal.emoji}</span><span class="name">?</span>`;
+        prepareButton(button, animal);
+        button.addEventListener('click', () => chooseAnimal(animal, button));
+        grid.appendChild(button);
+      });
+      playAnimal(correct);
+    }
+
+    function chooseAnimal(animal, button) {
+      if (!currentRound || currentRound.answered) return;
+      if (animal === currentRound.correct) {
+        currentRound.answered = true;
+        button.classList.add('correct');
+        button.querySelector('.name').textContent = animal.name;
+        grid.querySelectorAll('button').forEach(item => item.disabled = true);
+        prompt.textContent = 'Barakalla! To‘g‘ri topdingiz! 🎉';
+        advanceTimer = setTimeout(startRound, 1300);
+      } else {
+        button.classList.add('wrong');
+        button.querySelector('.name').textContent = animal.name;
+        prompt.textContent = 'Yana bir urinib ko‘ring 🙂';
+        setTimeout(() => button.classList.remove('wrong'), 650);
+      }
+    }
+
+    gameToggle.addEventListener('click', () => {
+      gameMode = !gameMode;
+      clearTimeout(advanceTimer);
+      stopAudio();
+      if (gameMode) {
+        gameToggle.textContent = '🏠 Hayvonlar ro‘yxati';
+        repeatButton.hidden = false;
+        startRound();
+      } else {
+        gameToggle.textContent = '🎮 Hayvonni top';
+        repeatButton.hidden = true;
+        currentRound = null;
+        prompt.textContent = '';
+        status.hidden = true;
+        renderList();
+      }
+    });
+
+    repeatButton.addEventListener('click', () => {
+      if (gameMode && currentRound) playAnimal(currentRound.correct);
+    });
+
+    renderList();
+  </script>
+</body>
+</html>
